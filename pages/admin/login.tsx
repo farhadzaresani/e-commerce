@@ -27,7 +27,6 @@ const login = () => {
     mutationKey: ["SignUpStepTwo"],
     onSuccess: (data) => {
       console.log(data);
-
       handleOpen();
     },
   });
