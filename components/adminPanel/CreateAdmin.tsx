@@ -8,67 +8,97 @@ import { Item } from "../LoginSignup/styel";
 import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
 import { SignOneType } from "../../pages/LoginSignup/type";
+import { getCookie } from "cookies-next";
 
-const CreateAdmin = (props) => {
-  const [open, setOpen] = React.useState(false);
-  const [adminData, setAdminData] = React.useState<SignOneType>({
-    name: "",
-    phone: "",
+type props = {
+  close: React.FC<boolean>;
+  active: boolean;
+  title: string;
+  firstLabel: string;
+  secondLabel: string;
+  secondType: string;
+  sumitHandler: React.FC<void>;
+};
+
+const CreateAdmin = ({
+  close,
+  active,
+  title,
+  firstLabel,
+  secondLabel,
+  secondType,
+  sumitHandler,
+}: props) => {
+  // const [open, setOpen] = React.useState(false);
+  const [inputData, setInputData] = React.useState({
+    first: "",
+    second: "",
   });
+  console.log(inputData.second);
+
+  // const cookie = getCookie("at");
 
   const handleClose = () => {
-    setOpen(false);
-    props.close(false);
+    // setOpen(false);
+    close(false);
   };
-  const handleToggle = () => {
-    setOpen(true);
-  };
+  // const handleToggle = () => {
+  //   setOpen(true);
+  // };
 
-  const adminMutation = useMutation({
-    mutationFn: async () => {
-      return await axios.post("http://localhost:4313/admin/create", adminData);
-    },
-    mutationKey: ["New Admin"],
-    onSuccess: (res) => {
-      console.log(res);
-    },
-  });
+  // const adminMutation = useMutation({
+  //   mutationFn: async () => {
+  //     return await axios.post("http://localhost:4313/admin/create", adminData, {
+  //       headers: { auth: `ut ${cookie}` },
+  //     });
+  //   },
+  //   mutationKey: ["New Admin"],
+  //   onSuccess: (res) => {
+  //     console.log(res);
+  //   },
+  //   onError: (err) => {
+  //     console.log(err);
+  //   },
+  // });
 
-  React.useEffect(() => {
-    if (props.active) handleToggle();
-  }, [props.active]);
-  console.log(adminData);
+  // React.useEffect(() => {
+  //   if (props.active) handleToggle();
+  // }, [props.active]);
+  // console.log(adminData);
 
   return (
     <div>
       <Backdrop
         sx={{ color: "#fff", zIndex: (theme) => theme.zIndex.drawer + 1 }}
-        open={open}
+        open={active}
       >
         <Paper sx={{ p: 5 }}>
-          <Typography variant="h6">Create new admin </Typography>
+          <Typography variant="h6">{title} </Typography>
           <Item>
             <TextField
               type="text"
-              label="Name:"
+              label={`${firstLabel}:`}
               variant="outlined"
               fullWidth
+              sx={{ my: 2 }}
               onChange={(e) =>
-                setAdminData({ ...adminData, name: e.target.value })
+                setInputData({ ...inputData, first: e.target.value })
               }
-              // inputRef={ref}
             />
             <TextField
-              type="number"
-              label="Phone number:"
+              type={secondType}
+              label={`${secondLabel}:`}
               variant="outlined"
               fullWidth
+              sx={{ my: 3 }}
               onChange={(e) =>
-                setAdminData({ ...adminData, phone: e.target.value })
+                setInputData({ ...inputData, second: e.target.value })
               }
             />
             <Button onClick={() => handleClose()}>Cancel</Button>
-            <Button onClick={() => adminMutation.mutate()}>Create</Button>
+            <Button onClick={() => sumitHandler.mutate(inputData)}>
+              Create
+            </Button>
           </Item>
         </Paper>
       </Backdrop>

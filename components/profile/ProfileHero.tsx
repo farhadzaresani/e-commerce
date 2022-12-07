@@ -22,25 +22,30 @@ const ProfileHero = ({ name, editMyName }: props) => {
     isEdit: false,
     newName: name,
   });
-  console.log(editName.newName);
+  console.log(editName);
+  const editNameHndler = () => {
+    editMyName.mutate(editName.newName);
+    setEditName({ ...editName, isEdit: false });
+  };
+
   return (
     <>
-      <Container className=" w-screen ">
+      <Container className="  bg-slate-100 ">
         <Box className=" p-5">
           <Stack direction={"row"}>
             {editName.isEdit ? (
               <>
                 <TextField
+                  className=" text-lg "
                   value={editName.newName}
-                  variant="filled"
+                  // variant="filled"
+                  size="small"
+                  inputProps={{ style: { fontSize: 22 } }}
                   onChange={(e) =>
                     setEditName({ ...editName, newName: e.target.value })
                   }
                 />
-                <Button
-                  onClick={() => editMyName.mutate(editName.newName)}
-                  variant="outlined"
-                >
+                <Button onClick={() => editNameHndler()} variant="outlined">
                   Save
                 </Button>
               </>

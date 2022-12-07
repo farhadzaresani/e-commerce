@@ -29,7 +29,13 @@ const login = () => {
       console.log(data);
       handleOpen();
     },
+    onError: (err) => {
+      // console.log(err.response.data.msg);
+    },
   });
+
+  console.log(loginStepOne.error?.response.data.msg);
+
   const logInStepTwo = useMutation({
     mutationFn: async (enterCode: string) => {
       return await axios.post("http://localhost:4313/admin/login-step-two", {
@@ -43,11 +49,17 @@ const login = () => {
       setCookie("at", data.data.token, {});
       router.push("/admin/panel");
     },
+    onError: (err) => {
+      console.log(err);
+    },
   });
 
   return (
     <MyContainer>
-      <LoginStepOne loginStepOne={loginStepOne} />
+      <LoginStepOne
+        loginStepOne={loginStepOne}
+        msg={loginStepOne.error?.response.data.msg}
+      />
       <VerifyNumber
         open={open}
         handleClose={handleClose}

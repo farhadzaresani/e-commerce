@@ -1,4 +1,4 @@
-import * as React from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { styled, useTheme } from "@mui/material/styles";
 import Box from "@mui/material/Box";
@@ -18,9 +18,18 @@ import ListItemIcon from "@mui/material/ListItemIcon";
 import ListItemText from "@mui/material/ListItemText";
 import InboxIcon from "@mui/icons-material/MoveToInbox";
 import MailIcon from "@mui/icons-material/Mail";
+import CategoryIcon from "@mui/icons-material/Category";
 import AdminPanelSettingsIcon from "@mui/icons-material/AdminPanelSettings";
 import SupervisorAccountIcon from "@mui/icons-material/SupervisorAccount";
 import CreateAdmin from "./CreateAdmin";
+import { useMutation } from "@tanstack/react-query";
+import { getCookie, hasCookie } from "cookies-next";
+import { getAdminMe } from "../../api/API";
+import { useDispatch, useSelector } from "react-redux";
+import { setUser } from "../../store/userSlicer";
+import { RootState } from "../../store/store";
+import { useRouter } from "next/router";
+import ListItems from "./ListItems";
 
 const drawerWidth = 240;
 
@@ -74,10 +83,14 @@ const DrawerHeader = styled("div")(({ theme }) => ({
   justifyContent: "flex-end",
 }));
 
-export default function SideBar({ children }) {
+export default function SideBar({ children }: any) {
   const theme = useTheme();
-  const [open, setOpen] = React.useState(false);
-  const [openCreateModal, setOpenCreateModal] = React.useState(false);
+  const [open, setOpen] = useState(false);
+  const [openCreateModal, setOpenCreateModal] = useState(false);
+  const cookie = getCookie("at", {});
+  const thisUser = useSelector((state: RootState) => state.currentUser);
+  const dispatch = useDispatch();
+  const router = useRouter();
   const handleDrawerOpen = () => {
     setOpen(true);
   };
@@ -88,6 +101,26 @@ export default function SideBar({ children }) {
   const handleToggleCreateModal = () => {
     setOpenCreateModal(true);
   };
+  const getAdminData = useMutation({
+    mutationFn: async () => {
+      return await getAdminMe(cookie);
+    },
+    onSuccess: (data) => {
+      dispatch(setUser(data?.data));
+      // console.log(data);
+      return data;
+    },
+    onError: (err) => {
+      console.log(err);
+      router.push("/admin/login");
+    },
+  });
+
+  useEffect(() => {
+    if (hasCookie("at", {}) && !thisUser.currentUser._id) {
+      getAdminData.mutate();
+    }
+  }, []);
 
   return (
     <>
@@ -131,57 +164,34 @@ export default function SideBar({ children }) {
               )}
             </IconButton>
           </DrawerHeader>
-          <Divider />
+          <ListItems />
+          {/* <Divider />
           <List>
-            {/* {["Create Admin", "Starred", "Send email", "Drafts"].map(
-            (text, index) => (
-              <ListItem key={text} disablePadding>
-                <ListItemButton>
-                  <ListItemIcon>
-                    {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-                  </ListItemIcon>
-                  <ListItemText primary={text} />
-                </ListItemButton>
-              </ListItem>
-            )
-          )} */}
-
             <ListItem disablePadding onClick={handleToggleCreateModal}>
               <ListItemButton>
                 <ListItemIcon>
-                  {/* {index % 2 === 0 ? <InboxIcon /> : <MailIcon />} */}
                   <SupervisorAccountIcon />
                 </ListItemIcon>
                 <ListItemText primary={"Create Admin"} />
               </ListItemButton>
             </ListItem>
+            <Divider />
+            <ListItem disablePadding onClick={handleToggleCreateModal}>
+              <ListItemButton>
+                <ListItemIcon>
+                  <CategoryIcon />
+                </ListItemIcon>
+                <ListItemText primary={"Create Category"} />
+              </ListItemButton>
+            </ListItem>
           </List>
-          <Divider />
-          <List>
-            {["All mail", "Trash", "Spam"].map((text, index) => (
-              <ListItem key={text} disablePadding>
-                <ListItemButton>
-                  <ListItemIcon>
-                    {index % 2 === 0 ? <InboxIcon /> : <MailIcon />}
-                  </ListItemIcon>
-                  <ListItemText primary={text} />
-                </ListItemButton>
-              </ListItem>
-            ))}
-          </List>
+          <Divider /> */}
         </Drawer>
         <Main className="mt-4" open={open}>
-          {/* <DrawerHeader /> */}
           {children}
         </Main>
       </Box>
-      <CreateAdmin
-        active={openCreateModal}
-        close={setOpenCreateModal}
-        // handleClose={handleCloseCreateModal}
-        // handleToggle={handleToggleCreateModal}
-        // open={openCreateModal}
-      />
+      {/* <CreateAdmin active={openCreateModal} close={setOpenCreateModal} /> */}
     </>
   );
 }

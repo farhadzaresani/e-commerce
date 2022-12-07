@@ -1,15 +1,39 @@
 import axios from "axios";
+import { CookieValueTypes } from "cookies-next";
+import { useDispatch } from "react-redux";
 
-export const getCountiesData = async () => {
-  const { data } = await axios.get(`${process.env.DOMAIN}/v2/get-meta-data`, {
-    headers: {
-      "X-RapidAPI-Key": process.env.RAPID_KEY,
-      "X-RapidAPI-Host": process.env.RAPID_HOST,
-    },
+export const getMyBadge = async (cookie: CookieValueTypes) => {
+  const { data } = await axios.get("http://localhost:4313/cart/", {
+    headers: { auth: `ut ${cookie}` },
   });
+  console.log(data);
   return data;
 };
-export const getTopUsers = async () => {
-  const { data } = await axios.get(`http://localhost:4000/user/top-users`);
+
+export const getMe = async (token: CookieValueTypes) => {
+  const data = await axios
+    .post(
+      "http://localhost:4313/user/me",
+      {},
+      { headers: { auth: `ut ${token}` } }
+    )
+    .then((res) => {
+      return res;
+    });
+  // console.log("ápi", data.data);
+  return data;
+};
+
+export const getAdminMe = async (token: CookieValueTypes) => {
+  const data = await axios
+    .post(
+      "http://localhost:4313/admin/me",
+      {},
+      { headers: { auth: `ut ${token}` } }
+    )
+    .then((res) => {
+      return res;
+    });
+  // console.log("api test", data);
   return data;
 };

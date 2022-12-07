@@ -47,6 +47,8 @@ const LoginStepOne: React.FC<{ loginStepOne: (data: string) => any }> = (
             </Item>
 
             <TextField
+              error={props.msg ? true : false}
+              helperText={props.msg}
               id="outlined-basic"
               fullWidth
               label="Phone number:"

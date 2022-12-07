@@ -17,8 +17,6 @@ type props = {
 };
 
 export default function AlertModal({ open, setOpen }: props) {
-  //   const [open, setOpen] = React.useState(true);
-  console.log("open", open);
   const handleClose = (
     event?: React.SyntheticEvent | Event,
     reason?: string

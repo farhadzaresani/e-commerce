@@ -1,6 +1,6 @@
 import { useMutation } from "@tanstack/react-query";
 import axios from "axios";
-import { getCookie } from "cookies-next";
+import { CookieValueTypes, getCookie } from "cookies-next";
 import React, { useEffect } from "react";
 import HourglassBottomIcon from "@mui/icons-material/HourglassBottom";
 import { useSelector, useDispatch } from "react-redux";
@@ -9,32 +9,27 @@ import { RootState } from "../../store/store";
 import ProfileHero from "../../components/profile/ProfileHero";
 import { useState } from "react";
 import AlertModal from "../../components/global/AlertModal";
+import { getMe } from "../../api/API";
 
 const index = () => {
   const [openAlert, setOpenAlert] = useState({ isopen: false, severity: "" });
-  console.log(openAlert);
+  // console.log(openAlert);
   const cookie = getCookie("ut", {});
   const dispatch = useDispatch();
   const thisUser = useSelector((state: RootState) => state.currentUser);
-  // console.log(thisUser);
+  console.log(thisUser);
   const getMeData = useMutation({
-    mutationFn: async () => {
-      return await axios.post(
-        "http://localhost:4313/user/me",
-        {},
-        { headers: { auth: `ut ${cookie}` } }
-      );
-    },
+    mutationFn: async (token: CookieValueTypes) => getMe(token),
     onSuccess: (data) => {
       dispatch(setUser(data.data));
       return data.data;
     },
   });
 
-  useEffect(() => {
-    getMeData.mutate();
-    // console.log(data);
-  }, []);
+  // useEffect(() => {
+  //   getMe(cookie);
+  //   console.log(getMe);
+  // }, []);
 
   const editMyName = useMutation({
     mutationFn: async (data) => {
@@ -47,26 +42,26 @@ const index = () => {
       );
     },
     onSuccess: (res) => {
-      console.log(res);
-      getMeData.mutate();
+      // console.log(res);
+      getMeData.mutate(cookie);
       setOpenAlert({ isopen: true, severity: "success" });
     },
   });
 
   // console.log(getMeData.data?.data);
 
-  if (getMeData.isLoading) {
+  if (!thisUser.currentUser.name) {
     return <HourglassBottomIcon className="animate-spin" />;
   }
-  console.log(getMeData.data?.data.name);
+  // console.log(getMeData.data?.data.name);
   return (
-    <>
-      <ProfileHero name={getMeData.data?.data.name} editMyName={editMyName} />
+    <div className=" w-screen">
+      <ProfileHero name={thisUser.currentUser.name} editMyName={editMyName} />
       <AlertModal
         open={openAlert}
         setOpen={() => setOpenAlert({ ...openAlert, isopen: false })}
       />
-    </>
+    </div>
   );
 };
 
